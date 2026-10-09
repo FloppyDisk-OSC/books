@@ -1,0 +1,1103 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bookshelf</title>
+
+<style>
+:root {
+    --bg: #0e1014;
+    --panel: #181b21;
+    --panel2: #22262e;
+    --border: #303640;
+    --text: #f1f3f5;
+    --muted: #9aa1ad;
+    --accent: #8b5cf6;
+    --accent-hover: #a78bfa;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    min-height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+button,
+input {
+    font: inherit;
+}
+
+header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 0 24px;
+    background: rgba(14, 16, 20, .94);
+    backdrop-filter: blur(15px);
+    border-bottom: 1px solid var(--border);
+}
+
+.logo {
+    font-size: 21px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.logo span {
+    color: var(--accent-hover);
+}
+
+#search {
+    width: min(500px, 100%);
+    flex: 1;
+    padding: 10px 14px;
+    background: var(--panel);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    outline: none;
+}
+
+#search:focus {
+    border-color: var(--accent);
+}
+
+.header-button {
+    height: 40px;
+    padding: 0 13px;
+    background: var(--panel);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    cursor: pointer;
+}
+
+.header-button:hover {
+    background: var(--panel2);
+}
+
+main {
+    max-width: 1400px;
+    margin: auto;
+    padding: 35px 25px;
+}
+
+.library-title {
+    margin-bottom: 25px;
+}
+
+.library-title h1 {
+    margin: 0 0 5px;
+    font-size: 32px;
+}
+
+.library-title p {
+    margin: 0;
+    color: var(--muted);
+}
+
+#books {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 22px;
+}
+
+.book {
+    overflow: hidden;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    cursor: pointer;
+    transition: transform .15s ease, border-color .15s ease;
+}
+
+.book:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent);
+}
+
+.book-cover {
+    height: 250px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: linear-gradient(135deg, #292e39, #17191e);
+    text-align: center;
+    font-weight: 700;
+}
+
+.book-info {
+    padding: 14px;
+}
+
+.book-name {
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.book-actions {
+    display: flex;
+    gap: 7px;
+    margin-top: 10px;
+}
+
+.book-actions button {
+    flex: 1;
+    padding: 7px;
+    background: var(--panel2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.book-actions button:hover {
+    background: #2c313b;
+}
+
+.star.active {
+    color: #facc15;
+}
+
+.bookmark.active {
+    color: var(--accent-hover);
+}
+
+.message {
+    grid-column: 1 / -1;
+    padding: 70px 20px;
+    text-align: center;
+    color: var(--muted);
+}
+
+#reader {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 500;
+    background: #08090c;
+}
+
+#reader.active {
+    display: flex;
+    flex-direction: column;
+}
+
+.reader-bar {
+    height: 64px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 12px;
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+}
+
+.reader-title {
+    min-width: 0;
+    flex: 1;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.reader-button {
+    width: 42px;
+    height: 40px;
+    flex-shrink: 0;
+    background: var(--panel2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.reader-button:hover {
+    background: #303640;
+}
+
+.reader-button:disabled {
+    opacity: .35;
+    cursor: default;
+}
+
+.reader-page-info {
+    min-width: 100px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+#pageInput {
+    width: 55px;
+    padding: 6px;
+    background: var(--panel2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    text-align: center;
+    outline: none;
+}
+
+#pageInput:focus {
+    border-color: var(--accent);
+}
+
+#pdfContainer {
+    position: relative;
+    flex: 1;
+    overflow: auto;
+    display: flex;
+    justify-content: center;
+    padding: 25px;
+}
+
+#pdfCanvas {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    background: white;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, .55);
+}
+
+#pdfLoading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--muted);
+    text-align: center;
+}
+
+.reader-bottom {
+    height: 58px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    background: var(--panel);
+    border-top: 1px solid var(--border);
+}
+
+.zoom-label {
+    color: var(--muted);
+    font-size: 13px;
+}
+
+@media (max-width: 600px) {
+    header {
+        padding: 0 10px;
+        gap: 7px;
+    }
+
+    .logo {
+        font-size: 17px;
+    }
+
+    .header-button {
+        padding: 0 9px;
+    }
+
+    main {
+        padding: 25px 13px;
+    }
+
+    #books {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .book-cover {
+        height: 205px;
+        font-size: 14px;
+    }
+
+    .reader-bar {
+        gap: 5px;
+        padding: 0 7px;
+    }
+
+    .reader-button {
+        width: 37px;
+    }
+
+    .reader-page-info {
+        min-width: 75px;
+        font-size: 12px;
+    }
+
+    #pdfContainer {
+        padding: 10px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="logo"><span>Bookshelf</span></div>
+
+    <input
+        id="search"
+        type="search"
+        placeholder="Search books..."
+        autocomplete="off"
+    >
+
+    <button
+        class="header-button"
+        id="filterStarred"
+        title="Show starred books"
+    >⭐</button>
+
+    <button
+        class="header-button"
+        id="refresh"
+        title="Refresh library"
+    >↻</button>
+</header>
+
+<main>
+    <div class="library-title">
+        <h1>Your Library</h1>
+        <p id="bookCount">Loading books...</p>
+    </div>
+
+    <div id="books">
+        <div class="message">
+            Loading your bookshelf...
+        </div>
+    </div>
+</main>
+
+<div id="reader">
+
+    <div class="reader-bar">
+
+        <button
+            class="reader-button"
+            id="closeReader"
+            title="Close reader"
+        >✕</button>
+
+        <button
+            class="reader-button"
+            id="previousBook"
+            title="Previous book"
+        >‹</button>
+
+        <div
+            class="reader-title"
+            id="readerTitle"
+        >Book</div>
+
+        <button
+            class="reader-button"
+            id="nextBook"
+            title="Next book"
+        >›</button>
+
+        <button
+            class="reader-button"
+            id="readerBookmark"
+            title="Bookmark"
+        >🔖</button>
+
+        <button
+            class="reader-button"
+            id="readerStar"
+            title="Star"
+        >☆</button>
+
+    </div>
+
+    <div id="pdfContainer">
+
+        <div id="pdfLoading">
+            Loading PDF...
+        </div>
+
+        <canvas
+            id="pdfCanvas"
+            style="display:none;"
+        ></canvas>
+
+    </div>
+
+    <div class="reader-bottom">
+
+        <button
+            class="reader-button"
+            id="previousPage"
+            title="Previous page"
+        >←</button>
+
+        <div class="reader-page-info">
+
+            <input
+                id="pageInput"
+                type="number"
+                min="1"
+                value="1"
+            >
+
+            /
+            <span id="totalPages">—</span>
+
+        </div>
+
+        <button
+            class="reader-button"
+            id="nextPage"
+            title="Next page"
+        >→</button>
+
+        <span class="zoom-label">
+            Zoom
+        </span>
+
+        <button
+            class="reader-button"
+            id="zoomOut"
+            title="Zoom out"
+        >−</button>
+
+        <button
+            class="reader-button"
+            id="zoomIn"
+            title="Zoom in"
+        >+</button>
+
+    </div>
+
+</div>
+
+<script type="module">
+
+const GITHUB_USER = "FloppyDisk-OSC";
+const GITHUB_REPO = "books";
+const PDF_FOLDER = "pdfs";
+
+import * as pdfjsLib from
+    "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs";
+
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+    "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.mjs";
+
+let books = [];
+let currentBookIndex = -1;
+let currentPDF = null;
+let currentPage = 1;
+let totalPages = 0;
+let zoom = 1.5;
+let showStarredOnly = false;
+
+let stars =
+    JSON.parse(
+        localStorage.getItem("bookStars") || "{}"
+    );
+
+let bookmarks =
+    JSON.parse(
+        localStorage.getItem("bookBookmarks") || "{}"
+    );
+
+const booksElement =
+    document.getElementById("books");
+
+const searchElement =
+    document.getElementById("search");
+
+const bookCount =
+    document.getElementById("bookCount");
+
+const reader =
+    document.getElementById("reader");
+
+const readerTitle =
+    document.getElementById("readerTitle");
+
+const pdfContainer =
+    document.getElementById("pdfContainer");
+
+const pdfCanvas =
+    document.getElementById("pdfCanvas");
+
+const pdfLoading =
+    document.getElementById("pdfLoading");
+
+const pageInput =
+    document.getElementById("pageInput");
+
+const totalPagesElement =
+    document.getElementById("totalPages");
+
+async function loadBooks() {
+
+    booksElement.innerHTML = `
+        <div class="message">
+            Loading your bookshelf...
+        </div>
+    `;
+
+    try {
+
+        const apiURL =
+            `https://api.github.com/repos/` +
+            `${GITHUB_USER}/${GITHUB_REPO}/contents/${PDF_FOLDER}`;
+
+        const response =
+            await fetch(apiURL);
+
+        if (!response.ok) {
+            throw new Error(
+                `GitHub API returned ${response.status}`
+            );
+        }
+
+        const files =
+            await response.json();
+
+        books =
+            files
+                .filter(file =>
+                    file.type === "file" &&
+                    file.name
+                        .toLowerCase()
+                        .endsWith(".pdf")
+                )
+                .map(file => ({
+                    name:
+                        file.name
+                            .replace(/\.pdf$/i, ""),
+                    filename:
+                        file.name,
+                    url:
+                        `https://${GITHUB_USER}.github.io/` +
+                        `${GITHUB_REPO}/` +
+                        `${PDF_FOLDER}/` +
+                        encodeURIComponent(file.name)
+                }))
+                .sort((a, b) =>
+                    a.name.localeCompare(b.name)
+                );
+
+        renderBooks();
+
+    } catch (error) {
+
+        console.error(error);
+
+        booksElement.innerHTML = `
+            <div class="message">
+                <h2>Couldn't load the bookshelf</h2>
+                <p>Check your repository configuration.</p>
+                <p>${escapeHTML(error.message)}</p>
+            </div>
+        `;
+
+        bookCount.textContent =
+            "Unable to load books";
+    }
+}
+
+function renderBooks() {
+
+    const query =
+        searchElement.value
+            .trim()
+            .toLowerCase();
+
+    const visibleBooks =
+        books.filter(book => {
+
+            const matchesSearch =
+                book.name
+                    .toLowerCase()
+                    .includes(query);
+
+            const matchesStar =
+                !showStarredOnly ||
+                stars[book.filename];
+
+            return matchesSearch &&
+                   matchesStar;
+        });
+
+    bookCount.textContent =
+        `${visibleBooks.length} ` +
+        `${visibleBooks.length === 1
+            ? "book"
+            : "books"}`;
+
+    if (!visibleBooks.length) {
+
+        booksElement.innerHTML = `
+            <div class="message">
+                <h2>No books found</h2>
+                <p>Try a different search.</p>
+            </div>
+        `;
+
+        return;
+    }
+
+    booksElement.innerHTML = "";
+
+    visibleBooks.forEach(book => {
+
+        const actualIndex =
+            books.indexOf(book);
+
+        const card =
+            document.createElement("div");
+
+        card.className = "book";
+
+        const cover =
+            document.createElement("div");
+
+        cover.className =
+            "book-cover";
+
+        cover.textContent =
+            book.name;
+
+        const info =
+            document.createElement("div");
+
+        info.className =
+            "book-info";
+
+        const name =
+            document.createElement("div");
+
+        name.className =
+            "book-name";
+
+        name.textContent =
+            book.name;
+
+        const actions =
+            document.createElement("div");
+
+        actions.className =
+            "book-actions";
+
+        const star =
+            document.createElement("button");
+
+        star.className =
+            stars[book.filename]
+                ? "star active"
+                : "star";
+
+        star.textContent =
+            stars[book.filename]
+                ? "⭐ Starred"
+                : "☆ Star";
+
+        const bookmark =
+            document.createElement("button");
+
+        bookmark.className =
+            bookmarks[book.filename]
+                ? "bookmark active"
+                : "bookmark";
+
+        bookmark.textContent =
+            bookmarks[book.filename]
+                ? "🔖 Saved"
+                : "🔖 Bookmark";
+
+        star.onclick = event => {
+            event.stopPropagation();
+            toggleStar(book.filename);
+            renderBooks();
+        };
+
+        bookmark.onclick = event => {
+            event.stopPropagation();
+            toggleBookmark(book.filename);
+            renderBooks();
+        };
+
+        actions.appendChild(star);
+        actions.appendChild(bookmark);
+
+        info.appendChild(name);
+        info.appendChild(actions);
+
+        card.appendChild(cover);
+        card.appendChild(info);
+
+        card.onclick = () =>
+            openBook(actualIndex);
+
+        booksElement.appendChild(card);
+    });
+}
+
+function toggleStar(filename) {
+
+    stars[filename] =
+        !stars[filename];
+
+    localStorage.setItem(
+        "bookStars",
+        JSON.stringify(stars)
+    );
+}
+
+function toggleBookmark(filename) {
+
+    bookmarks[filename] =
+        !bookmarks[filename];
+
+    localStorage.setItem(
+        "bookBookmarks",
+        JSON.stringify(bookmarks)
+    );
+}
+
+async function openBook(index) {
+
+    if (
+        index < 0 ||
+        index >= books.length
+    ) {
+        return;
+    }
+
+    currentBookIndex =
+        index;
+
+    const book =
+        books[index];
+
+    readerTitle.textContent =
+        book.name;
+
+    reader.classList.add("active");
+
+    document.body.style.overflow =
+        "hidden";
+
+    pdfCanvas.style.display =
+        "none";
+
+    pdfLoading.style.display =
+        "block";
+
+    pdfLoading.textContent =
+        "Loading PDF...";
+
+    currentPage =
+        Number(
+            localStorage.getItem(
+                "page_" + book.filename
+            ) || 1
+        );
+
+    zoom = 1.5;
+
+    try {
+
+        currentPDF =
+            await pdfjsLib
+                .getDocument(book.url)
+                .promise;
+
+        totalPages =
+            currentPDF.numPages;
+
+        currentPage =
+            Math.max(
+                1,
+                Math.min(
+                    currentPage,
+                    totalPages
+                )
+            );
+
+        totalPagesElement.textContent =
+            totalPages;
+
+        pageInput.max =
+            totalPages;
+
+        await renderCurrentPage();
+
+        updateReaderButtons();
+
+    } catch (error) {
+
+        console.error(error);
+
+        pdfLoading.innerHTML = `
+            <h2>Couldn't open this PDF</h2>
+            <p>${escapeHTML(error.message)}</p>
+        `;
+    }
+}
+
+async function renderCurrentPage() {
+
+    if (!currentPDF)
+        return;
+
+    pdfLoading.style.display =
+        "block";
+
+    pdfLoading.textContent =
+        `Loading page ${currentPage}...`;
+
+    pdfCanvas.style.display =
+        "none";
+
+    const page =
+        await currentPDF.getPage(
+            currentPage
+        );
+
+    const viewport =
+        page.getViewport({
+            scale: zoom
+        });
+
+    pdfCanvas.width =
+        viewport.width;
+
+    pdfCanvas.height =
+        viewport.height;
+
+    const context =
+        pdfCanvas.getContext("2d");
+
+    await page.render({
+        canvasContext:
+            context,
+        viewport:
+            viewport
+    }).promise;
+
+    pdfLoading.style.display =
+        "none";
+
+    pdfCanvas.style.display =
+        "block";
+
+    pageInput.value =
+        currentPage;
+
+    updateReaderButtons();
+
+    const book =
+        books[currentBookIndex];
+
+    if (book) {
+
+        localStorage.setItem(
+            "page_" + book.filename,
+            currentPage
+        );
+    }
+
+    pdfContainer.scrollTop = 0;
+}
+
+async function changePage(amount) {
+
+    const newPage =
+        currentPage + amount;
+
+    if (
+        newPage < 1 ||
+        newPage > totalPages
+    ) {
+        return;
+    }
+
+    currentPage =
+        newPage;
+
+    await renderCurrentPage();
+}
+
+document.getElementById(
+    "previousPage"
+).onclick =
+    () => changePage(-1);
+
+document.getElementById(
+    "nextPage"
+).onclick =
+    () => changePage(1);
+
+pageInput.addEventListener(
+    "change",
+    async () => {
+
+        let page =
+            Number(pageInput.value);
+
+        if (!Number.isFinite(page))
+            page = 1;
+
+        page =
+            Math.max(
+                1,
+                Math.min(
+                    page,
+                    totalPages
+                )
+            );
+
+        currentPage =
+            page;
+
+        await renderCurrentPage();
+    }
+);
+
+document.getElementById(
+    "zoomIn"
+).onclick = async () => {
+
+    zoom =
+        Math.min(
+            zoom + .25,
+            3
+        );
+
+    await renderCurrentPage();
+};
+
+document.getElementById(
+    "zoomOut"
+).onclick = async () => {
+
+    zoom =
+        Math.max(
+            zoom - .25,
+            .5
+        );
+
+    await renderCurrentPage();
+};
+
+document.getElementById(
+    "previousBook"
+).onclick = () => {
+
+    if (currentBookIndex > 0) {
+
+        openBook(
+            currentBookIndex - 1
+        );
+    }
+};
+
+document.getElementById(
+    "nextBook"
+).onclick = () => {
+
+    if (
+        currentBookIndex <
+        books.length - 1
+    ) {
+
+        openBook(
+            currentBookIndex + 1
+        );
+    }
+};
+
+document.getElementById(
+    "readerStar"
+).onclick = () => {
+
+    const book =
+        books[currentBookIndex];
+
+    if (!book)
+        return;
+
+    toggleStar(book.filename);
+    updateReaderButtons();
+};
+
+document.getElementById(
+    "readerBookmark"
+).onclick = () => {
+
+    const book =
+        books[currentBookIndex];
+
+    if (!book)
+        return;
+
+    toggleBookmark(book.filename);
+    updateReaderButtons();
+};
+
+function updateReaderButtons() {
+
+    const book =
+        books[currentBookIndex];
+
+    if (!book)
+        return;
+
+    document.getElementById(
+        "readerStar"
+    ).textContent =
+        stars[book.filename]
+            ? "⭐"
+            : "☆";
+
+    document.getElementById(
+        "readerBookmark"
+    ).textContent =
+        bookmarks[book.filename]
+            ? "🔖"
+            : "📑";
+
+    document.getElementById(
+        "previousBook"
+    ).disabled =
+        currentBookIndex <= 0;
+
+    document.getElementById(
+        "nextBook"
+    ).disabled =
+        currentBookIndex >=
+        books.length - 1;
+
+    document.getElementById(
+        "previousPage"
+    ).disabled =
+        currentPage <= 1;
+
+    document.getElementById(
+      
